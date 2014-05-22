@@ -1,4 +1,4 @@
-require 'mime/message'
+require 'mime'
 
 module Gmail
   class Message
