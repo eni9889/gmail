@@ -24,7 +24,6 @@ module Gmail
       # Connect to gmail service. 
       def connect(raise_errors=false)
         @imap = Net::IMAP.new(GMAIL_IMAP_HOST, GMAIL_IMAP_PORT, true, nil, false)
-        GmailImapExtensions.patch_net_imap_response_parser
       rescue SocketError
         raise_errors and raise ConnectionError, "Couldn't establish connection with GMail IMAP service"
       end
@@ -153,7 +152,7 @@ module Gmail
       #   end
       def mailbox(name, &block)
         @mailbox_mutex.synchronize do
-          name = name.to_s
+          name = Net::IMAP.encode_utf7(name.to_s)
           mailbox = (mailboxes[name] ||= Mailbox.new(self, name))
           switch_to_mailbox(name) if @current_mailbox != name
 
@@ -191,16 +190,13 @@ module Gmail
       end
 
       def mail_domain
-        username.split('@').last
+        username.split('@')[0]
       end
       
       private
       
       def switch_to_mailbox(mailbox)
-        if mailbox
-          mailbox = Net::IMAP.encode_utf7(mailbox)
-          conn.select(mailbox)
-        end
+        conn.select(mailbox) if mailbox
         @current_mailbox = mailbox
       end
       

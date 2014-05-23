@@ -14,8 +14,6 @@ API, is well tested, better documented and have many other improvements.
 
 Extra thanks for specific feature contributions from:
 
-* [abhishiv](http://github.com/abhishiv)
-* [Michael Young](http://github.com/myoung8)
 * [Nicolas Fouché](http://github.com/nfo)
 * [Stefano Bernardi](http://github.com/stefanobernardi)
 * [Benjamin Bock](http://github.com/bb)
@@ -24,8 +22,6 @@ Extra thanks for specific feature contributions from:
 * [Mikkel Malmberg](http://github.com/mikker)
 * [Julien Blanchard](http://github.com/julienXX)
 * [Federico Galassi](http://github.com/fgalassi)
-* [Alex Genco](http://github.com/alexgenco)
-* [Justin Grevich](http://github.com/jgrevich)
 
 ## Installation
 
@@ -33,7 +29,7 @@ You can install it easy using rubygems:
 
     sudo gem install gmail
     
-Or install it manually:
+Or install it manualy:
 
     git clone git://github.com/nu7hatch/gmail.git
     cd gmail
@@ -91,21 +87,6 @@ You can also check if you are logged in at any time:
       gmail.logged_in?
     end
 
-### XOAuth authentication
-
-From v0.4.0 it's possible to authenticate with your Gmail account using XOAuth
-method. It's very simple:
-
-    gmail = Gmail.connect(:xoauth, "email@domain.com", 
-      :token           => 'TOKEN',
-      :secret          => 'TOKEN_SECRET',
-      :consumer_key    => 'CONSUMER_KEY',
-      :consumer_secret => 'CONSUMER_SECRET'
-    )
-    
-For more information check out the [gmail_xoauth](https://github.com/nfo/gmail_xoauth)
-gem from Nicolas Fouché.
-
 ### Counting and gathering emails
     
 Get counts for messages in the inbox:
@@ -142,7 +123,7 @@ You can use also one of aliases:
     
 Also you can manipulate each message using block style:
 
-    gmail.inbox.find(:unread).each do |email|
+    gmail.inbox.find(:unread) do |email|
       email.read!
     end
     
@@ -150,7 +131,7 @@ Also you can manipulate each message using block style:
 
 Any news older than 4-20, mark as read and archive it:
 
-    gmail.inbox.find(:before => Date.parse("2010-04-20"), :from => "news@nbcnews.com").each do |email|
+    gmail.inbox.find(:before => Date.parse("2010-04-20"), :from => "news@nbcnews.com") do |email|
       email.read! # can also unread!, spam! or star!
       email.archive!
     end
@@ -164,7 +145,7 @@ Delete emails from X:
 Save all attachments in the "Faxes" label to a local folder:
 
     folder = "/where/ever"
-    gmail.mailbox("Faxes").emails.each do |email|
+    gmail.mailbox("Faxes").emails do |email|
       if !email.message.attachments.empty?
         email.message.save_attachments_to(folder)
       end
@@ -210,16 +191,16 @@ labels:
 
 Create new label:
   
-    gmail.labels.new("Urgent")
+    gmail.labels.new("Uregent")
     gmail.labels.add("AnotherOne")
     
 Remove labels:
 
-    gmail.labels.delete("Urgent")
+    gmail.labels.delete("Uregent")
     
 Or check if given label exists:
 
-    gmail.labels.exists?("Urgent") # => false
+    gmail.labels.exists?("Uregent") # => false
     gmail.labels.exists?("AnotherOne") # => true
 
 ### Composing and sending emails
@@ -237,15 +218,14 @@ email either, because ruby-gmail will set it for you.
         body "Text of plaintext message."
       end
       html_part do
-        content_type 'text/html; charset=UTF-8'
         body "<p>Text of <em>html</em> message.</p>"
       end
       add_file "/path/to/some_image.jpg"
     end
 
-Or, compose the message first and send it later
+Or, generate the message first and send it later
 
-    email = gmail.compose do
+    email = gmail.generate_message do
       to "email@example.com"
       subject "Having fun in Puerto Rico!"
       body "Spent the day on the road..."

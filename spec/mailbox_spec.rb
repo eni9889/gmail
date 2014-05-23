@@ -21,6 +21,7 @@ describe "A Gmail mailbox" do
   end
 
   context "instance" do
+
     it "should be able to count all emails" do
       mock_mailbox do |mailbox|
         mailbox.count.should > 0
@@ -43,5 +44,6 @@ describe "A Gmail mailbox" do
       #  emails.size.should > 0
       #end
     end
+    
   end
 end

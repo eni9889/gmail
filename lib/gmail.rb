@@ -22,6 +22,7 @@ module Gmail
   autoload :Message, "gmail/message"
 
   class << self
+
     # Creates new Gmail connection using given authorization options.
     #
     # ==== Examples
@@ -43,23 +44,39 @@ module Gmail
     #     # ...
     #   end
     #
-
-    ['', '!'].each { |kind|
-      define_method("new#{kind}") do |*args, &block|                  # def new(*args, &block)
-        args.unshift(:plain) unless args.first.is_a?(Symbol)          #   args.unshift(:plain) unless args.first.is_a?(Symbol)  
-        client = Gmail::Client.new(*args)                             #   client = Gmail::Client.new(*args) 
-        client.send("connect#{kind}") and client.send("login#{kind}") #   client.connect and client.login
-                                                                      #  
-        if block_given?                                               #   if block_given?
-          yield client                                                #     yield client
-          client.logout                                               #     client.logout
-        end                                                           #   end
-                                                                      #   
-        client                                                        #   client
-      end                                                             # end
-    }
-
+    def new(*args, &block)
+      client = connect_with_proper_client(*args)
+      client.connect and client.login
+      perform_block(client, &block)
+    end
     alias :connect :new
+
+    def new!(*args, &block)
+      client = connect_with_proper_client(*args)
+      client.connect! and client.login!
+      perform_block(client, &block)
+    end
     alias :connect! :new!
+    
+    protected
+
+    def connect_with_proper_client(*args)
+      if args.first.is_a?(Symbol)        
+        login_method = args.shift  
+      else
+        login_method ||= :plain
+      end
+
+      Client.send("new_#{login_method}", *args)
+    end
+
+    def perform_block(client, &block)
+      if block_given?
+        yield client
+        client.logout
+      end
+      client
+    end
+
   end # << self
 end # Gmail

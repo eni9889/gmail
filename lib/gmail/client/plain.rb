@@ -14,7 +14,5 @@ module Gmail
         raise_errors and raise AuthorizationError, "Couldn't login to given GMail account: #{username}"
       end
     end # Plain
-
-    register :plain, Plain
   end # Client
 end # Gmail
